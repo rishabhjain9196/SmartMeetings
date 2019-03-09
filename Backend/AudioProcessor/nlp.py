@@ -24,6 +24,7 @@ def processTranscript(transcript):
 
     pretty_printer.pprint(meetings)
     pretty_printer.pprint(tasks)
+    return meetings, tasks
 
 def getMeetingFromSentence(sentence):
     if 'schedule' in sentence.text or 'sync' in sentence.text:
@@ -31,15 +32,13 @@ def getMeetingFromSentence(sentence):
         for token in sentence:
             if (token.dep_ == 'nsubj' or token.dep_ == 'relcl') and token.pos_ == 'PROPN':
                 currentMeeting['Organiser'] = token.text
-                currentMeeting['Participants'] = [token.text]
         
         sentenceDoc = NLP(sentence.text)
         for entity in sentenceDoc.ents:
             if entity.label_ == 'PERSON':
                 if not 'Participants' in currentMeeting:
                     currentMeeting['Participants'] = []
-                if entity.text not in currentMeeting['Participants']:
-                    currentMeeting['Participants'].append(entity.text)
+                currentMeeting['Participants'].append(entity.text)
             
             if entity.label_ == 'DATE':
                 currentMeeting['Time'] = entity.text
@@ -58,24 +57,20 @@ def getTaskFromSentence(sentence):
             if token.dep_ == 'nsubj' and token.pos_ == 'PROPN':
                 currentTask['Person'] = token.text
 
-            if token.dep_ == 'dobj' and token.text != 'task':
-                currentTask['Task'] = ' '.join(str(x) for x in token.subtree)
-        
-        if not 'Task' in currentTask:
-            for token in sentence:
-                if token.dep_ == 'pobj':
-                    currentTask['Task'] = ' '.join(str(x) for x in list(token.ancestors)[0].subtree)
+            if token.dep_ == 'pobj' and (token.pos_ == 'NOUN' or token.pos_ == 'PROPN'):
+                currentTask['Task'] = {
+                    'Text': token.text,
+                    'Type': token.dep_
+                }
+            
+            if token.dep_ == 'dobj' and (token.pos_ == 'NOUN' or token.pos_ == 'PROPN') and not 'Task' in currentTask:
+                currentTask['Task'] = {
+                    'Text': token.text,
+                    'Type': token.dep_
+                }
 
         if 'Person' in currentTask and 'Task' in currentTask:
-            taskDoc = NLP(currentTask['Task'])
-            i = 0
-            for token in taskDoc:
-                if token.text == 'the' or token.text == 'of':
-                    i += 1
-                else:
-                    break
-            
-            currentTask['Task'] = taskDoc[i:].text
+            currentTask['Task'] = currentTask['Task']['Text']
             return currentTask
         else:
             return {}
@@ -83,7 +78,7 @@ def getTaskFromSentence(sentence):
         return {}
 
 
-testTranscript = u'Abhirup will be doing the integration of backend and frontend. Abhirup has a ball as well. Steve will schedule a meeting with David and Jim tomorrow. Justin to sync with Mike by Friday. Sanket has the task of client UI. Rishabh will own the backend and the unit tests.'
+testTranscript = u'Abhirup will be doing the integration. Abhirup has a ball as well. Steve will schedule a meeting with David and Jim tomorrow. Justin to sync with Mike by Friday. Sanket has the task of client UI. Rishabh will own the backend.'
 
 if __name__ == "__main__":
     processTranscript(testTranscript)
