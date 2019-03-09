@@ -4,6 +4,9 @@ import requests
 import json
 import sys
 from . import constants
+import numpy as np
+from scikits.audiolab import wavread
+from pydub import AudioSegment
 
 speech_key, service_region = constants.speech_key, constants.service_region
 
@@ -17,7 +20,7 @@ def get_auth_token():
     return response
 
 def getText():
-    weatherfilename = constants.appname + "/" + constants.filename
+    weatherfilename = constants.appname + "/input_wav/" + constants.filename
     authorization = 'Bearer ' + response.text
     recoRequestHeader = {
         'Authorization' : authorization,
@@ -36,16 +39,27 @@ def getText():
         text = text[0]['Display']
     return text
 
-def convert_to_wav():
-    from pydub import AudioSegment
-    sound = AudioSegment.from_mp3("/path/to/file.mp3")
-    sound.export("/output/path/file.wav", format="wav")
+def convert_to_wav(path):
+    sound = AudioSegment.from_mp3(path)
+    path.replace('mp3', 'wav')
+    sound.export(path, format="wav")
 
 def get_audio():
     return
 
-def overlapp_all_audios():
-    return
+def superimpose(paths, superimposed_path):
+    sounds = []
+    if len(paths) == 0:
+        return null
+    
+    combined = AudioSegment.from_file(path[0])
+    
+    for all path in paths[1:]:
+        current_sound = AudioSegment.from_file(path)
+        sounds.append(current_sound)
+        combined = combined_sound.overlay(current_sound)
+    
+    combined.export(superimposed_path, format='wav')
 
 def convert_to_text():
     # chunk creation
@@ -55,4 +69,49 @@ def convert_to_text():
 def translations():
     return
 
-getText()
+def send_meeting_mail():
+    return
+
+def delete_files():
+    import os, shutil
+    folder = '/path/to/folder'
+    for the_file in os.listdir(folder):
+        file_path = os.path.join(folder, the_file)
+        try:
+            if os.path.isfile(file_path):
+                os.unlink(file_path)
+            #elif os.path.isdir(file_path): shutil.rmtree(file_path)
+        except Exception as e:
+            print(e)
+
+def if __name__ == "__main__":
+    
+    #input mp3 files
+
+    #convert mp3 to wav
+
+    # superimposing of wav files over one another
+    input_folder = constants.appname + "/input_wav/"
+    base_dir = os.path.join(base_dir, input_folder)
+    for subdir, dirs, files in os.walk(input_directory):
+    paths = []
+    for filename in files:
+        if filename.endswith(".mp3"):
+            # Assuming no directories inside the folder
+            paths.append(base_dir + "/" + filename)
+    
+    superimpose(paths, base_dir + '/superimposed.wav')
+
+    # chunking of all wav audio files, superimposed file
+
+    # calling get text for wav + superimposed
+
+    # coverting text to moms
+
+    # Create tasks via NLP -> Send Mail?
+
+    # Meetings NLP
+
+    # Transcipt
+
+    # Translated Transcripts
