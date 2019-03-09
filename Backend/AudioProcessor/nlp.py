@@ -32,18 +32,18 @@ def getMeetingFromSentence(sentence):
         for token in sentence:
             if (token.dep_ == 'nsubj' or token.dep_ == 'relcl') and token.pos_ == 'PROPN':
                 currentMeeting['Organiser'] = token.text
-        
+
         sentenceDoc = NLP(sentence.text)
         for entity in sentenceDoc.ents:
             if entity.label_ == 'PERSON':
                 if not 'Participants' in currentMeeting:
                     currentMeeting['Participants'] = []
                 currentMeeting['Participants'].append(entity.text)
-            
+
             if entity.label_ == 'DATE':
                 currentMeeting['Time'] = entity.text
                 currentMeeting['TimeRelativeTo'] = datetime.date.today()
-        
+
         return currentMeeting
     else:
         return {}
@@ -51,7 +51,7 @@ def getMeetingFromSentence(sentence):
 
 
 def getTaskFromSentence(sentence):
-    if 'will' in sentence.text or 'task' in sentence.text:
+    if 'will' in sentence.text or 'task' in sentence.text or 'going to' in sentence.text:
         currentTask = {}
         for token in sentence:
             if token.dep_ == 'nsubj' and token.pos_ == 'PROPN':
@@ -62,7 +62,7 @@ def getTaskFromSentence(sentence):
                     'Text': token.text,
                     'Type': token.dep_
                 }
-            
+
             if token.dep_ == 'dobj' and (token.pos_ == 'NOUN' or token.pos_ == 'PROPN') and not 'Task' in currentTask:
                 currentTask['Task'] = {
                     'Text': token.text,
