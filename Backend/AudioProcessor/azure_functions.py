@@ -87,7 +87,8 @@ def delete_files():
 def if __name__ == "__main__":
     
     #input mp3 files
-    
+
+    #convert mp3 to wav
 
     # superimposing of wav files over one another
     input_folder = constants.appname + "/input_wav/"
@@ -99,4 +100,18 @@ def if __name__ == "__main__":
             # Assuming no directories inside the folder
             paths.append(base_dir + "/" + filename)
     
-    superimpose(paths, base_dir)
+    superimpose(paths, base_dir + '/superimposed.wav')
+
+    # chunking of all wav audio files, superimposed file
+
+    # calling get text for wav + superimposed
+
+    # coverting text to moms
+
+    # Create tasks via NLP -> Send Mail?
+
+    # Meetings NLP
+
+    # Transcipt
+
+    # Translated Transcripts
