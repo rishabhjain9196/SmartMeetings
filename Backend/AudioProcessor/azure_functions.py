@@ -1,4 +1,9 @@
 import azure.cognitiveservices.speech as speechsdk
+import os
+import requests
+import json
+import sys
+
 speech_key, service_region = "8eac476d51444920bc05a87990fcff56", "westus"
 
 def audio_to_text():
@@ -34,11 +39,13 @@ def audio_to_text():
 
 
 def speech_recognize_once_from_file():
-    weatherfilename = "/Users/rishabhjain/Documents/repos/CodieCon/SmartMeetings/Backend/AudioProcessor/whatstheweatherlike.wav"
+    weatherfilename = "AudioProcessor/whatstheweatherlike.wav"
     import ipdb; ipdb.set_trace()
     """performs one-shot speech recognition with input from an audio file"""
     # <SpeechRecognitionWithFile>
     speech_config = speechsdk.SpeechConfig(subscription=speech_key, region=service_region)
+    base_dir = os.getcwd()
+    print (base_dir)
     audio_config = speechsdk.audio.AudioConfig(filename="whatstheweatherlike.wav")
     # Creates a speech recognizer using a file as audio input.
     # The default language is "en-us".
@@ -64,4 +71,40 @@ def speech_recognize_once_from_file():
             print("Error details: {}".format(cancellation_details.error_details))
     # </SpeechRecognitionWithFile>
 
-speech_recognize_once_from_file()
+
+def getText():
+    weatherfilename = "AudioProcessor/whatstheweatherlike.wav"
+    import ipdb; ipdb.set_trace()
+    # get token
+    header = {
+        'Content-type':'application/x-www-form-urlencoded',
+        'Content-Length': '0',
+        'Ocp-Apim-Subscription-Key': speech_key
+        }
+    response = requests.post('https://westus.api.cognitive.microsoft.com/sts/v1.0/issueToken', headers=header)
+    # print(type(response))
+    # print(response.text)
+
+    SpeechServiceURI ='https://westus.stt.speech.microsoft.com/speech/recognition/conversation/cognitiveservices/v1?language=en-us&format=detailed'
+    authorization = 'Bearer ' + response.text
+    recoRequestHeader = {
+        'Authorization' : authorization,
+        # 'Transfer-Encoding' : 'chunked',
+        'Content-type' : 'audio/wav; codec=audio/pcm; samplerate=16000'
+        }
+
+    # base_dir = 'C:\\Users\\Administrator\\Desktop\\Hackathon project\\out\\'
+    base_dir = os.getcwd()
+    print (base_dir)
+    audioBytes = open(os.path.join(base_dir,weatherfilename), 'rb').read()
+
+    textGenerated = requests.post(SpeechServiceURI, headers=recoRequestHeader, data=audioBytes)
+    # print(textGenerated.__dict__.keys())
+    data = json.loads(textGenerated.text)
+    
+    text = data.get('NBest', None)
+    if text:
+        text = text[0]['Display']
+    return text
+
+getText()
