@@ -3,108 +3,56 @@ import os
 import requests
 import json
 import sys
+from . import constants
 
-speech_key, service_region = "8eac476d51444920bc05a87990fcff56", "westus"
+speech_key, service_region = constants.speech_key, constants.service_region
 
-def audio_to_text():
-    # Creates an instance of a speech config with specified subscription key and service region.
-    # Replace with your own subscription key and service region (e.g., "westus").
-    
-    speech_config = speechsdk.SpeechConfig(subscription=speech_key, region=service_region)
-
-    # Creates a recognizer with the given settings
-    speech_recognizer = speechsdk.SpeechRecognizer(speech_config=speech_config)
-
-    print("Say something...")
-
-
-    # Starts speech recognition, and returns after a single utterance is recognized. The end of a
-    # single utterance is determined by listening for silence at the end or until a maximum of 15
-    # seconds of audio is processed.  The task returns the recognition text as result. 
-    # Note: Since recognize_once() returns only a single utterance, it is suitable only for single
-    # shot recognition like command or query. 
-    # For long-running multi-utterance recognition, use start_continuous_recognition() instead.
-    result = speech_recognizer.recognize_once()
-
-    # Checks result.
-    if result.reason == speechsdk.ResultReason.RecognizedSpeech:
-        print("Recognized: {}".format(result.text))
-    elif result.reason == speechsdk.ResultReason.NoMatch:
-        print("No speech could be recognized: {}".format(result.no_match_details))
-    elif result.reason == speechsdk.ResultReason.Canceled:
-        cancellation_details = result.cancellation_details
-        print("Speech Recognition canceled: {}".format(cancellation_details.reason))
-        if cancellation_details.reason == speechsdk.CancellationReason.Error:
-            print("Error details: {}".format(cancellation_details.error_details))
-
-
-def speech_recognize_once_from_file():
-    weatherfilename = "AudioProcessor/whatstheweatherlike.wav"
-    import ipdb; ipdb.set_trace()
-    """performs one-shot speech recognition with input from an audio file"""
-    # <SpeechRecognitionWithFile>
-    speech_config = speechsdk.SpeechConfig(subscription=speech_key, region=service_region)
-    base_dir = os.getcwd()
-    print (base_dir)
-    audio_config = speechsdk.audio.AudioConfig(filename="whatstheweatherlike.wav")
-    # Creates a speech recognizer using a file as audio input.
-    # The default language is "en-us".
-    speech_recognizer = speechsdk.SpeechRecognizer(speech_config=speech_config, audio_config=audio_config)
-
-    # Starts speech recognition, and returns after a single utterance is recognized. The end of a
-    # single utterance is determined by listening for silence at the end or until a maximum of 15
-    # seconds of audio is processed. It returns the recognition text as result.
-    # Note: Since recognize_once() returns only a single utterance, it is suitable only for single
-    # shot recognition like command or query.
-    # For long-running multi-utterance recognition, use start_continuous_recognition() instead.
-    result = speech_recognizer.recognize_once()
-
-    # Check the result
-    if result.reason == speechsdk.ResultReason.RecognizedSpeech:
-        print("Recognized: {}".format(result.text))
-    elif result.reason == speechsdk.ResultReason.NoMatch:
-        print("No speech could be recognized: {}".format(result.no_match_details))
-    elif result.reason == speechsdk.ResultReason.Canceled:
-        cancellation_details = result.cancellation_details
-        print("Speech Recognition canceled: {}".format(cancellation_details.reason))
-        if cancellation_details.reason == speechsdk.CancellationReason.Error:
-            print("Error details: {}".format(cancellation_details.error_details))
-    # </SpeechRecognitionWithFile>
-
-
-def getText():
-    weatherfilename = "AudioProcessor/whatstheweatherlike.wav"
-    import ipdb; ipdb.set_trace()
-    # get token
+def get_auth_token():
     header = {
         'Content-type':'application/x-www-form-urlencoded',
         'Content-Length': '0',
         'Ocp-Apim-Subscription-Key': speech_key
         }
-    response = requests.post('https://westus.api.cognitive.microsoft.com/sts/v1.0/issueToken', headers=header)
-    # print(type(response))
-    # print(response.text)
+    response = requests.post(constants.tokenUrl, headers=header)
+    return response
 
-    SpeechServiceURI ='https://westus.stt.speech.microsoft.com/speech/recognition/conversation/cognitiveservices/v1?language=en-us&format=detailed'
+def getText():
+    weatherfilename = constants.appname + "/" + constants.filename
     authorization = 'Bearer ' + response.text
     recoRequestHeader = {
         'Authorization' : authorization,
         # 'Transfer-Encoding' : 'chunked',
         'Content-type' : 'audio/wav; codec=audio/pcm; samplerate=16000'
         }
-
-    # base_dir = 'C:\\Users\\Administrator\\Desktop\\Hackathon project\\out\\'
+    
     base_dir = os.getcwd()
-    print (base_dir)
     audioBytes = open(os.path.join(base_dir,weatherfilename), 'rb').read()
 
-    textGenerated = requests.post(SpeechServiceURI, headers=recoRequestHeader, data=audioBytes)
-    # print(textGenerated.__dict__.keys())
+    textGenerated = requests.post(constants.SpeechServiceURI, headers=recoRequestHeader, data=audioBytes)
     data = json.loads(textGenerated.text)
     
     text = data.get('NBest', None)
     if text:
         text = text[0]['Display']
     return text
+
+def convert_to_wav():
+    from pydub import AudioSegment
+    sound = AudioSegment.from_mp3("/path/to/file.mp3")
+    sound.export("/output/path/file.wav", format="wav")
+
+def get_audio():
+    return
+
+def overlapp_all_audios():
+    return
+
+def convert_to_text():
+    # chunk creation
+    # gettext for all chunks
+    # combine chunked texts
+
+def translations():
+    return
 
 getText()
