@@ -107,11 +107,22 @@ def start():
                 # Assuming no directories inside the folder
                 paths.append(base_dir + "/" + filename)
     
-
-    import ipdb; ipdb.set_trace()
     superimpose(paths, os.path.join(os.getcwd(), input_folder) + '/superimposed.wav')
 
+    import ipdb; ipdb.set_trace()
     # chunking of all wav audio files, superimposed file
+    input_folder = appname + "/input_wav"
+    paths = []
+    base_dir = os.path.join(os.getcwd(), input_folder)
+    for subdir, dirs, files in os.walk(base_dir):
+        for filename in files:
+            temp = 1
+            if filename.endswith(".wav"):
+                # Assuming no directories inside the folder
+                import subprocess
+                seg_time = '30'
+                subprocess.call(['ffmpeg', '-i', os.path.join(base_dir, filename) , '-f', 'segment', '-segment_time', seg_time, '-c', 'copy', os.path.join(os.path.join(base_dir, str(temp)), "out.wav")])
+            temp = temp + 1
 
     # calling get text for wav + superimposed
 
