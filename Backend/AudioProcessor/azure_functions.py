@@ -4,6 +4,9 @@ import requests
 import json
 import sys
 from . import constants
+import numpy as np
+from scikits.audiolab import wavread
+from pydub import AudioSegment
 
 speech_key, service_region = constants.speech_key, constants.service_region
 
@@ -36,16 +39,27 @@ def getText():
         text = text[0]['Display']
     return text
 
-def convert_to_wav():
-    from pydub import AudioSegment
-    sound = AudioSegment.from_mp3("/path/to/file.mp3")
-    sound.export("/output/path/file.wav", format="wav")
+def convert_to_wav(path):
+    sound = AudioSegment.from_mp3(path)
+    path.replace('mp3', 'wav')
+    sound.export(path, format="wav")
 
 def get_audio():
     return
 
-def overlapp_all_audios():
-    return
+def superimpose(paths, superimposed_path):
+    sounds = []
+    if len(paths) == 0:
+        return null
+    
+    combined = AudioSegment.from_file(path[0])
+    
+    for all path in paths[1:]:
+        current_sound = AudioSegment.from_file(path)
+        sounds.append(current_sound)
+        combined = combined_sound.overlay(sound2)
+    
+    combined.export(superimposed_path, format='wav')
 
 def convert_to_text():
     # chunk creation
@@ -55,4 +69,6 @@ def convert_to_text():
 def translations():
     return
 
+def send_meeting_mail():
+    return
 getText()
