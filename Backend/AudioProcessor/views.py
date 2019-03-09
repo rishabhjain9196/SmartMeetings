@@ -37,9 +37,8 @@ class send_audio(APIView):
         import ipdb; ipdb.set_trace()
         data = request.data
         mp3_data = base64.b64decode(request.data['key'])
-        client_id = request.data['cid']
-        meeting_id = request.data['mid']
-        azure_functions.start(client_id, mp3_data)
-        print(request.data)
+        client_id = 1
+        meeting_id = 1
+        azure_functions.start(client_id, meeting_id, mp3_data)
         return Response({'toast_text': 'aa gaya'}, status=status.HTTP_200_OK)
 

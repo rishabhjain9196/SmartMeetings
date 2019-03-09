@@ -6,6 +6,7 @@ NLP = spacy.load('en_core_web_sm')
 pretty_printer = pprint.PrettyPrinter(indent=4)
 
 def processTranscript(transcript):
+    print("transcript: ", transcript)
     meetings = []
     tasks = []
     doc = NLP(transcript)
