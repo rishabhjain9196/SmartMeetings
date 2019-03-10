@@ -26,13 +26,13 @@ def processTranscript(transcript):
     pretty_printer.pprint(tasks)
 
 def getMeetingFromSentence(sentence):
-    if 'schedule' in sentence.text or 'sync' in sentence.text:
+    if 'schedule' in sentence.text or 'sync' in sentence.text or 'meeting' in sentence.text:
         currentMeeting = {}
         for token in sentence:
             if (token.dep_ == 'nsubj' or token.dep_ == 'relcl') and token.pos_ == 'PROPN':
                 currentMeeting['Organiser'] = token.text
                 currentMeeting['Participants'] = [token.text]
-        
+
         sentenceDoc = NLP(sentence.text)
         for entity in sentenceDoc.ents:
             if entity.label_ == 'PERSON':
@@ -40,11 +40,11 @@ def getMeetingFromSentence(sentence):
                     currentMeeting['Participants'] = []
                 if entity.text not in currentMeeting['Participants']:
                     currentMeeting['Participants'].append(entity.text)
-            
+
             if entity.label_ == 'DATE':
                 currentMeeting['Time'] = entity.text
                 currentMeeting['TimeRelativeTo'] = datetime.date.today()
-        
+
         return currentMeeting
     else:
         return {}
@@ -52,7 +52,7 @@ def getMeetingFromSentence(sentence):
 
 
 def getTaskFromSentence(sentence):
-    if 'will' in sentence.text or 'task' in sentence.text:
+    if 'will' in sentence.text or 'task' in sentence.text or 'going to' in sentence.text:
         currentTask = {}
         for token in sentence:
             if token.dep_ == 'nsubj' and token.pos_ == 'PROPN':
@@ -60,7 +60,7 @@ def getTaskFromSentence(sentence):
 
             if token.dep_ == 'dobj' and token.text != 'task':
                 currentTask['Task'] = ' '.join(str(x) for x in token.subtree)
-        
+
         if not 'Task' in currentTask:
             for token in sentence:
                 if token.dep_ == 'pobj':
@@ -74,7 +74,7 @@ def getTaskFromSentence(sentence):
                     i += 1
                 else:
                     break
-            
+
             currentTask['Task'] = taskDoc[i:].text
             return currentTask
         else:
@@ -83,7 +83,7 @@ def getTaskFromSentence(sentence):
         return {}
 
 
-testTranscript = u'Abhirup will be doing the integration of backend and frontend. Abhirup has a ball as well. Steve will schedule a meeting with David and Jim tomorrow. Justin to sync with Mike by Friday. Sanket has the task of client UI. Rishabh will own the backend and the unit tests.'
+testTranscript = u'Abhirup will be doing the integration of backend and frontend. Abhirup has a ball as well. Steve will schedule a meeting with David and Jim tomorrow. Justin to sync with Mike by Friday. Sanket has the task of client UI. Rishabh will own the backend and the unit tests. David will complete the back end unit tests.'
 
 if __name__ == "__main__":
     processTranscript(testTranscript)
