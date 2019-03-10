@@ -2,18 +2,25 @@ import spacy
 import pprint
 import datetime
 
+DAY_LIST = ['today', 'tomorrow', 'yesterday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December', 'month', 'day', 'week']
+
+def sbd_component(doc):
+    for i, token in enumerate(doc[:-1]):
+        # define sentence start if period + titlecase token
+        if token.text in DAY_LIST:
+            doc[i + 1].sent_start = True
+    return doc
+
 NLP = spacy.load('en_core_web_sm')
 NLP.add_pipe(sbd_component, before='parser')
 pretty_printer = pprint.PrettyPrinter(indent=4)
 
 
 def processTranscript(transcript):
+    print("transcript: ", transcript)
     meetings = []
     tasks = []
     doc = NLP(transcript)
-    for entity in doc.ents:
-         if entity.label_ == 'DATE':
-             entity.
 
     for sentence in doc.sents:
         # Try to extract meeting from a sentence
@@ -30,6 +37,7 @@ def processTranscript(transcript):
 
     pretty_printer.pprint(meetings)
     pretty_printer.pprint(tasks)
+    return meetings, tasks
 
 
 def getMeetingFromSentence(sentence):
@@ -50,7 +58,6 @@ def getMeetingFromSentence(sentence):
 
             if entity.label_ == 'DATE':
                 currentMeeting['Time'] = entity.text
-                currentMeeting['TimeRelativeTo'] = datetime.date.today()
 
         return currentMeeting
     else:
@@ -89,18 +96,9 @@ def getTaskFromSentence(sentence):
     else:
         return {}
 
-DAY_LIST = ['today', 'tomorrow', 'yesterday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December', 'month', 'day', 'week']
-
-def sbd_component(doc):
-    for i, token in enumerate(doc[:-2]):
-        # define sentence start if period + titlecase token
-        if token.text in DAY_LIST:
-            doc[i + 1].sent_start = True
-    return doc
 
 
-
-testTranscript = u'Abhirup will be doing the integration of backend and frontend. Abhirup has a ball as well. Steve will schedule a meeting with David and Jim tomorrow. Justin to sync with Mike by Friday Sanket has the task of client UI. Rishabh will own the backend and the unit tests. David will complete the back end unit tests.'
+testTranscript =  u'Abhirup will be doing the integration of backend and frontend. Abhirup has a ball as well. Steve will schedule a meeting with David and Jim tomorrow. Justin to sync with Mike by tomorrow Sanket has the task of client UI. Rishabh will own the backend and the unit tests. David will complete the back end unit tests.'
 
 if __name__ == "__main__":
     processTranscript(testTranscript)

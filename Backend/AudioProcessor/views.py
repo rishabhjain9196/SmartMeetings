@@ -38,6 +38,6 @@ class send_audio(APIView):
         mp3_data = base64.b64decode(request.data['key'])
         client_id = 1
         meeting_id = 1
-        azure_functions.start(client_id, meeting_id, mp3_data)
-        return Response({'toast_text': 'aa gaya'}, status=status.HTTP_200_OK)
+        ret = azure_functions.start(client_id, meeting_id, mp3_data)
+        return Response({'result': ret}, status=status.HTTP_200_OK)
 
