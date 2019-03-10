@@ -39,5 +39,5 @@ class send_audio(APIView):
         client_id = 1
         meeting_id = 1
         ret = azure_functions.start(client_id, meeting_id, mp3_data)
-        return Response({'result': ret}, status=status.HTTP_200_OK)
+        return Response(ret, status=status.HTTP_200_OK)
 
