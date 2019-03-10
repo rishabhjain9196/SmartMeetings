@@ -1,5 +1,5 @@
 import azure.cognitiveservices.speech as speechsdk
-import os
+import os, shutil
 import requests
 import json
 import sys
@@ -17,6 +17,23 @@ def get_auth_token():
         }
     response = requests.post(tokenUrl, headers=header)
     return response
+
+
+
+def getTextv2(filename):   
+    import speech_recognition as sr
+    r = sr.Recognizer()
+    with sr.AudioFile(filename) as source:
+        audio = r.record(source)
+    try:
+        text = r.recognize_google(audio)
+        print("Sphinx thinks you said " + text)
+        return text
+    except sr.UnknownValueError:
+        print("Sphinx could not understand audio")
+    except sr.RequestError as e:
+        print("Sphinx error; {0}".format(e))
+
 
 def getText(filename):
 
@@ -74,20 +91,21 @@ def translations():
 def send_meeting_mail():
     return
 
-def delete_files():
-    import os, shutil
-    folder = '/path/to/folder'
+def delete_files(folder):
     for the_file in os.listdir(folder):
         file_path = os.path.join(folder, the_file)
         try:
             if os.path.isfile(file_path):
                 os.unlink(file_path)
-            #elif os.path.isdir(file_path): shutil.rmtree(file_path)
+            elif os.path.isdir(file_path): 
+                shutil.rmtree(file_path)
         except Exception as e:
             print(e)
 
 def start(client_id, meeting_id, mp3_data):
     # store mp3_data
+    delete_files(os.path.join(os.getcwd(), 'AudioProcessor/input_mp3/'))
+    delete_files(os.path.join(os.getcwd(), 'AudioProcessor/input_wav/'))
     offset = appname + "/input_mp3/" + str(meeting_id) + "/"
     meet_folder = os.path.join(os.getcwd(), offset)
     if not os.path.exists(meet_folder):
@@ -114,7 +132,7 @@ def start(client_id, meeting_id, mp3_data):
     # superimposing of wav files over one another and getting texts for all individual clients
     paths = []
     count = 0
-    base_dir = os.path.join(os.getcwd(), wav_meet_folder)
+    base_dir = wav_meet_folder
     texts = []
     total_text_length = 0
     for subdir, dirs, files in os.walk(base_dir):
@@ -126,7 +144,8 @@ def start(client_id, meeting_id, mp3_data):
                     'client': filename.replace(".wav", ""),
                     'text': client_text
                 })
-                total_text_length = total_text_length + len(client_text)
+                if client_text:
+                    total_text_length = total_text_length + len(client_text)
                 # Assuming no directories inside the folder
                 paths.append(base_dir + "/" + filename)
 
@@ -165,10 +184,12 @@ def start(client_id, meeting_id, mp3_data):
     # stats
     result['stats'] = []
     for item in texts:
-        result['stats'].append(
-            {
-                'client': item['client'],
-                'engagement': len(item['text'])*100/total_text_length
-            }
-        )
+        if item and item['text']:
+            result['stats'].append(
+                {
+                    'client': item['client'],
+                    'engagement': len(item['text'])*100/total_text_length
+                }
+            )
+    print(result)
     return result

@@ -28,7 +28,7 @@ def processTranscript(transcript):
     return meetings, tasks
 
 def getMeetingFromSentence(sentence):
-    if 'schedule' in sentence.text or 'sync' in sentence.text:
+    if 'schedule' in sentence.text or 'sync' in sentence.text or 'meeting' in sentence.text:
         currentMeeting = {}
         for token in sentence:
             if (token.dep_ == 'nsubj' or token.dep_ == 'relcl') and token.pos_ == 'PROPN':

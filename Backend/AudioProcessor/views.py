@@ -34,7 +34,6 @@ class send_audio(APIView):
         """
         :return: Update Driver Location
         """
-        import ipdb; ipdb.set_trace()
         data = request.data
         mp3_data = base64.b64decode(request.data['key'])
         client_id = 1
