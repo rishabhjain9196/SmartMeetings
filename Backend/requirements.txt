@@ -9,7 +9,7 @@ cytoolz==0.9.0.1
 decorator==4.3.2
 dill==0.2.9
 Django==2.1.7
-djangorestframework==3.9.2
+djangorestframework==3.11.2
 en-core-web-sm==2.0.0
 ffprobe==0.5
 idna==2.8
